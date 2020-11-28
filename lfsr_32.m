@@ -8,17 +8,17 @@ shift_reg = zeros(1, 32);
 seed = [1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ]
 
 shift_reg = seed;
-num_itr = 1000;
+num_itr = 1024*8;
 values = zeros(1, num_itr+2);
 avg = zeros(1, num_itr+2);
 auto_wdw = zeros(1, num_itr+2);
 wdw = 256;
-auto_window = zeros(1, wdw);
+half_wdw = (wdw/2);
+auto_window = zeros(1, half_wdw);
 
 for kk = 1:sr_len
   values(1) = values(1) + (2*seed(kk))^(kk-1);
 end
-
 
 
 figure(1);
@@ -32,7 +32,7 @@ subplot(2,2,4);
 stem(auto_wdw);
 
 
-
+auto_corr_avg = zeros(1, wdw);
 
 for ii = 1:num_itr+1
 
@@ -43,25 +43,27 @@ for ii = 1:num_itr+1
     for kk = 1:16
       values(ii+1) = values(ii+1) + (2*shift_reg(kk))^(kk-1);
     end
-
+    
     
     if (ii > wdw)
 
+      auto_corr_avg(wdw) = (sum(values(ii-wdw+1:ii)) + values(ii+1))/wdw;
+      for ll = 1:wdw-1
+        auto_corr_avg(wdw-ll) = auto_corr_avg(wdw-ll+1);
+      end
+
       %Running average      
-    	avg(ii) = sum(values(ii-wdw:ii))/wdw;
+    	avg(ii) = auto_corr_avg(wdw);
 
       %Autocorrelation for window      
       %auto_window = autocorr(values(ii-wdw:ii));
-      for jj = 1:wdw
-        auto_window(jj) = values(ii-wdw:ii)*transpose(circshift(values(ii-wdw:ii),jj));
+      for jj = 1:half_wdw
+        auto_window(jj) = auto_corr_avg(jj:jj+half_wdw)*transpose(circshift(auto_corr_avg(jj:jj+half_wdw),jj));
       end
     end
-
-    
-
     
     if (mod(ii,10) == 0 )
-      pause(.05);
+      pause(.05); 
       subplot(2,2,1);
       stem(shift_reg);
       subplot(2,2,2);

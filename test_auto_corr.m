@@ -1,9 +1,10 @@
-close all;
-clear all;
 len = 1024*8;
 wdw = 128*8;
 
-s = sign(rand(1, len)-.5);
+%s = sign(rand(1, len)-.5);
+
+s = values;
+
 padding = zeros(1, len);
 
 x = [padding s padding];

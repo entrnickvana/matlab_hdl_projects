@@ -8,17 +8,24 @@ shift_reg = seed;
 
 num_itr = 1000;
 values = zeros(1, num_itr+2);
+avg = zeros(1, num_itr+2);
+
 for kk = 1:16
   values(1) = values(1) + (2*seed(kk))^(kk-1);
 end
 
+wdw = 128;
 
-figure(1)
-subplot(2,2,1)
-stem(shift_reg)
-subplot(2,2,2)
-stem(values)
-hold on
+figure(1);
+subplot(2,2,1);
+stem(shift_reg);
+subplot(2,2,2);
+stem(values);
+subplot(2,2,3);
+stem(avg);
+hold on;
+
+
 
 
 for ii = 1:num_itr+1
@@ -27,16 +34,24 @@ for ii = 1:num_itr+1
 	shift_reg(13) = xor(shift_reg(16), shift_reg(13));
     shift_reg(11) = xor(shift_reg(16), shift_reg(13));
 
+    %Bit vector to integer
     for kk = 1:16
       values(ii+1) = values(ii+1) + (2*shift_reg(kk))^(kk-1);
+    end
+
+    %Running average
+    if (ii > wdw)
+    	avg(ii) = sum(values(ii-wdw:ii))/wdw;
     end
     
     if (mod(ii,10) == 0 )
       pause(.05);
-      subplot(2,1,1)
-      stem(shift_reg)
-      subplot(2,1,2)
-      stem(values)
+      subplot(2,2,1);
+      stem(shift_reg);
+      subplot(2,2,2);
+      stem(values);
+      subplot(2,2,3);
+      stem(avg);
     end
 
      
