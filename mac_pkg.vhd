@@ -24,12 +24,60 @@ Package mac_pkg is
   type lin_vect_sfix is array(0 to 1, 0 to 1023) of sfixed(0 downto -15);
   impure function time_sig_arr(a, b, stp : real) return lin_vector;
   impure function sin_wav(a : lin_vector) return lin_vect_sfix;
-  impure function sin_rom(sin_wav : sig_rom) return sig_rom;  
+  impure function sin_rom(sin_wav : sig_rom) return sig_rom;
+  
+  type c_sfix is record
+    a_re : sfixed(0 downto -15);
+    a_im : sfixed(0 downto -15);
+    b_re : sfixed(0 downto -15);
+    b_im : sfixed(0 downto -15);
+    prod1_re : sfixed(0 downto -31);
+    prod1_im : sfixed(0 downto -31);
+    prod2_re : sfixed(0 downto -31);
+    prod2_im : sfixed(0 downto -31);
+    prod1_ovf : std_logic;    
+    prod2_ovf : std_logic;    
+    sum_re : sfixed(1 downto -15);
+    sum_im : sfixed(1 downto -15);
+    sum_ovf : std_logic;
+    c_re : sfixed(0 downto -15);
+    c_im : sfixed(0 downto -15);
+  end record c_sfix;
+
+  procedure c_mult(signal c : inout c_sfix);  
+  
+  --type  complex_mult is record
+  --  a : comp_sfix(0 downto -15);
+  --  prod_ab : comp_sfix(0 downto -31);
+  --  sum : comp_sfix(1 downto -15);
+  --  prod_ovf : std_logic;    
+  --  sum_ovf : std_logic;
+  --  b : comp_sfix(0 downto -15);
+  --  c : comp_sfix(0 downto -31);
+  --end record complex_mult;
 
 end package mac_pkg;
 
 package body mac_pkg is
 
+  procedure c_mult(signal c : inout c_sfix) is
+    begin
+    -- real products
+    c.prod1_re <= c.a_re*c.b_re;
+    c.prod2_re <= c.a_im*c.b_im;
+
+    -- real sum
+    c.sum_re <= c.prod1_re - c.prod2_re;
+
+    -- imag products  
+    c.prod1_im <= c.a_re*c.b_im;
+    c.prod2_im <= c.a_im*c.b_re;
+
+    -- imag sum
+    c.sum_im <= c.prod1_im + c.prod2_im;  
+    
+  end procedure;
+  
   function dummy(sin_len : integer) return boolean is
     begin
     return true;
