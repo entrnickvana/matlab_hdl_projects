@@ -10,7 +10,7 @@ entity lfsr is
     prog_valid : in std_logic;
     poly_taps  : in std_logic_vector(15 downto 0);
     init_seed  : in std_logic_vector(15 downto 0);
-    out_stream : out std_logic_vector(15 downto 0));
+    out_stream : out std_logic);
        
 end entity lfsr;
 
@@ -29,9 +29,12 @@ architecture behav of lfsr is
       
       shift_reg <= (others => '0');
       poly_taps_reg <= (others => '0');
-      init_seed_reg <= (others => '0');      
+      init_seed_reg <= (others => '0');
+      out_stream <= '0';
       
     elsif clk'event and clk = '1' then
+
+      out_stream <= shift_reg(0);
 
       shift_reg <= shift_reg_next;
       poly_taps_reg <= poly_taps_reg;
@@ -40,7 +43,8 @@ architecture behav of lfsr is
       --Program Polynomial
       if (prog_valid = '1') then
          poly_taps_reg <= poly_taps;
-         init_seed_reg <= init_seed;                                                                            
+         init_seed_reg <= init_seed;
+         shift_reg <= init_seed;
       end if;
         
     end if;
@@ -63,6 +67,8 @@ architecture behav of lfsr is
   shift_reg_next(13)  <= shift_reg(14) when poly_taps_reg(13) = '0' else shift_reg(9) xor shift_reg(0);
   shift_reg_next(14)  <= shift_reg(15) when poly_taps_reg(14) = '0' else shift_reg(9) xor shift_reg(0);
   shift_reg_next(15)  <= shift_reg(0);
+
+
   --shift_reg_next(15)  <= shift_reg(0)  when poly_taps_reg(15) = '0' else shift_reg(9) xor shift_reg(0);
   
 
