@@ -5,6 +5,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.fixed_pkg.all;
 
+library work;
+use work.mac_pkg.all;
+
 entity mac is
   port( clk    : in std_logic;
         reset  : in std_logic;
@@ -37,6 +40,7 @@ begin
       a_re <= (others => '0');
       b_re <= (others => '0');
       c_re <= (others => '0');
+
     elsif(clk'event and clk = '1') then
       
       a_re <= x_real;
@@ -69,13 +73,30 @@ architecture conv of mac is
   --signal x_complex : complex;
   --signal y_complex : complex;  
   --signal s_complex : complex;
-  signal a_re : sfixed(0 downto -15);
-  signal a_im : sfixed(0 downto -15);  
-  signal b_re : sfixed(0 downto -15);
-  signal b_im : sfixed(0 downto -15);
-  signal c_re : sfixed(0 downto -31);
-  signal c_im : sfixed(0 downto -31);
+  --signal a_re : sfixed(0 downto -15);
+  --signal a_im : sfixed(0 downto -15);  
+  --signal b_re : sfixed(0 downto -15);
+  --signal b_im : sfixed(0 downto -15);
+  signal tap1 : c_sfix;
 
+  constant c_sfix_rst : c_sfix := (
+        a_re => (others => '0'),
+        a_im => (others => '0'),
+        b_re => (others => '0'),
+        b_im => (others => '0'),
+        prod1_re => (others => '0'),
+        prod1_im => (others => '0'),
+        prod2_re => (others => '0'),
+        prod2_im => (others => '0'),
+        prod1_ovf => '0',
+        prod2_ovf => '0',
+        sum_re => (others => '0'),
+        sum_im => (others => '0'),
+        sum_ovf => '0',
+        c_re => (others => '0'),
+        c_im => (others => '0')
+      );
+  
 
 begin
 
@@ -83,11 +104,21 @@ begin
   begin
     
     if (reset = '1') then
-      a_re <= (others => '0');
-      b_re <= (others => '0');
-      c_re <= (others => '0');
+      -- all zeros
+      tap1 <= c_sfix_rst;
     elsif(clk'event and clk = '1') then
 
+      tap1.a_re <= x_real;
+      tap1.a_im <= x_imag;
+      tap1.b_re <= y_real;
+      tap1.b_im <= y_imag;
+
+      -- Single complex multiply
+      c_mult(tap1);
+      s_real <= tap1.c_re;
+      s_imag <= tap1.c_im;
+      
+            
       -- If operand signs don't match and result isn't neg, overflow
       --ovf <= '1' when ((a_re(0) xor b_re(0)) and c_re(0)) = '1' else '0';
       ovf <= '1';
