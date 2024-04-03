@@ -48,6 +48,7 @@ architecture tb of mac_tb is
   signal s_imag : u_sfixed(0 downto -15);
   signal ovf    : std_logic;
 
+
 begin  -- architecture tb
 
   -- component instantiation
@@ -73,6 +74,29 @@ begin  -- architecture tb
     variable sig1 : lin_vector := time_sig_arr(0.0, 12.0*3.14, 0.02653);
     variable sig1_sfix : lin_vect_sfix := sin_wav(sig1);
     variable pulse : integer := 0;
+    variable mod16_ii : integer := 0;
+    type pulse_arr is array(0 to 15) of real;
+    variable cnt : integer := 0;
+    variable sym_arr : pulse_arr := (
+         0 => 1.0,
+         1 => 1.0,
+         2 => 1.0,
+         3 => 1.0,
+         4 => -1.0,
+         5 => 1.0,
+         6 => 1.0,
+         7 => 1.0,
+         8 => 1.0,
+         9 => -1.0,
+        10 => 1.0,
+        11 => 1.0,
+        12 => -1.0,
+        13 => -1.0,
+        14 => 1.0,
+        15 => 1.0
+      );
+      
+
   begin
 
     wait for 33 ns;
@@ -81,14 +105,26 @@ begin  -- architecture tb
     reset <= '1';
     wait for 33 ns;
     reset <= '0';
+    --wait for 1 ns; -- 100 ns in
+    --wait for 200 ns;
+      
 
     for ii in 1 to 4096 loop
 
       -- Sin wave
       --x_real <= sig1_sfix(1, ii);
+      mod16_ii := ii mod 16;
 
-      -- Data impulses 
-      x_real <= to_sfixed(1.0, 0, -15) when (ii mod 16) = 0 else to_sfixed(0.0, 0, -15);
+      if (ii mod 8) = 0 then
+        cnt := 0 when (cnt = 15) else cnt + 1;          
+      end if;
+        
+      if (ii = 0) then
+        cnt := 0;
+      end if;
+
+      -- Data impulses
+      x_real <= to_sfixed(sym_arr(cnt), 0, -15) when (ii mod 8) = 0 else to_sfixed(0.0, 0, -15);
       x_imag <= to_sfixed(0.0, 0, -15);
       
       y_real <= to_sfixed(0.0, 0, -15);

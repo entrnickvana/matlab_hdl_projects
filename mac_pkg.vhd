@@ -72,8 +72,9 @@ package body mac_pkg is
 
     -- real sum
     c.sum_re <= c.prod1_re(0 downto -15) - c.prod2_re(0 downto -15);
+    c.c_re <= c.sum_re(0 downto -15);
 
-    c.sum_ovf <= '0';
+
 
     -- imag products  
     c.prod1_im <= c.a_re*c.b_im;
@@ -81,7 +82,9 @@ package body mac_pkg is
     c.prod_im_ovf <= '0';
     
     -- imag sum
-    c.sum_im <= c.prod1_im(0 downto -15) + c.prod2_im(0 downto -15);  
+    c.sum_im <= c.prod1_im(0 downto -15) + c.prod2_im(0 downto -15);
+    c.c_im <= c.sum_im(0 downto -15);
+    c.sum_ovf <= '0';    
     
   end procedure;
 

@@ -214,47 +214,50 @@ architecture conv of mac is
     32 => to_sfixed(-0.0000, 0, -15)
   );                  
   
-  --constant sinc_filt : array(0 to 32) of sfixed(0 downto -15)  : (
-  --    0 =>  to_sfixed(-0.0000, 0, -15),
-  --    1 =>  to_sfixed(-0.0650, 0, -15),
-  --    2 =>  to_sfixed(-0.1286, 0, -15),
-  --    3 =>  to_sfixed(-0.1810, 0, -15),
-  --    4 =>  to_sfixed(-0.2122, 0, -15),
-  --    5 =>  to_sfixed(-0.2139, 0, -15),
-  --    6 =>  to_sfixed(-0.1801, 0, -15),
-  --    7 =>  to_sfixed(-0.1083, 0, -15),
-  --    8 =>  to_sfixed( 0.0000, 0, -15),
-  --    9 =>  to_sfixed( 0.1392, 0, -15),
-  --   10 =>  to_sfixed( 0.3001, 0, -15),
-  --   11 =>  to_sfixed( 0.4705, 0, -15),
-  --   12 =>  to_sfixed( 0.6366, 0, -15),
-  --   13 =>  to_sfixed( 0.7842, 0, -15),
-  --   14 =>  to_sfixed( 0.9003, 0, -15),
-  --   15 =>  to_sfixed( 0.9745, 0, -15),
-  --   16 =>  to_sfixed( 1.0000, 0, -15),
-  --   17 =>  to_sfixed( 0.9745, 0, -15),
-  --   18 =>  to_sfixed( 0.9003, 0, -15),
-  --   19 =>  to_sfixed( 0.7842, 0, -15),
-  --   20 =>  to_sfixed( 0.6366, 0, -15),
-  --   21 =>  to_sfixed( 0.4705, 0, -15),
-  --   22 =>  to_sfixed( 0.3001, 0, -15),
-  --   23 =>  to_sfixed( 0.1392, 0, -15),
-  --   24 =>  to_sfixed( 0.0000, 0, -15),
-  --   25 =>  to_sfixed(-0.1083, 0, -15),
-  --   26 =>  to_sfixed(-0.1801, 0, -15),
-  --   27 =>  to_sfixed(-0.2139, 0, -15),
-  --   28 =>  to_sfixed(-0.2122, 0, -15),
-  --   29 =>  to_sfixed(-0.1810, 0, -15),
-  --   30 =>  to_sfixed(-0.1286, 0, -15),
-  --   31 =>  to_sfixed(-0.0650, 0, -15),
-  --   32 =>  to_sfixed(-0.000, 0, -15)
-  -- );
+  constant sinc_filt : fir_taps := (
+     0 =>  to_sfixed(-0.0000, 0, -15),
+     1 =>  to_sfixed(-0.0650, 0, -15),
+     2 =>  to_sfixed(-0.1286, 0, -15),
+     3 =>  to_sfixed(-0.1810, 0, -15),
+     4 =>  to_sfixed(-0.2122, 0, -15),
+     5 =>  to_sfixed(-0.2139, 0, -15),
+     6 =>  to_sfixed(-0.1801, 0, -15),
+     7 =>  to_sfixed(-0.1083, 0, -15),
+     8 =>  to_sfixed( 0.0000, 0, -15),
+     9 =>  to_sfixed( 0.1392, 0, -15),
+    10 =>  to_sfixed( 0.3001, 0, -15),
+    11 =>  to_sfixed( 0.4705, 0, -15),
+    12 =>  to_sfixed( 0.6366, 0, -15),
+    13 =>  to_sfixed( 0.7842, 0, -15),
+    14 =>  to_sfixed( 0.9003, 0, -15),
+    15 =>  to_sfixed( 0.9745, 0, -15),
+    16 =>  to_sfixed( 1.0000, 0, -15),
+    17 =>  to_sfixed( 0.9745, 0, -15),
+    18 =>  to_sfixed( 0.9003, 0, -15),
+    19 =>  to_sfixed( 0.7842, 0, -15),
+    20 =>  to_sfixed( 0.6366, 0, -15),
+    21 =>  to_sfixed( 0.4705, 0, -15),
+    22 =>  to_sfixed( 0.3001, 0, -15),
+    23 =>  to_sfixed( 0.1392, 0, -15),
+    24 =>  to_sfixed( 0.0000, 0, -15),
+    25 =>  to_sfixed(-0.1083, 0, -15),
+    26 =>  to_sfixed(-0.1801, 0, -15),
+    27 =>  to_sfixed(-0.2139, 0, -15),
+    28 =>  to_sfixed(-0.2122, 0, -15),
+    29 =>  to_sfixed(-0.1810, 0, -15),
+    30 =>  to_sfixed(-0.1286, 0, -15),
+    31 =>  to_sfixed(-0.0650, 0, -15),
+    32 =>  to_sfixed(-0.000, 0, -15)
+  );
+
+  signal b_taps_re : fir_taps := half_sinc_filt;
+  signal b_taps_im : fir_taps := half_sinc_filt;
 
 begin
 
   mult : process(clk, reset) is
-    variable b_taps_re : fir_taps := half_sinc_filt;
-    variable b_taps_im : fir_taps := half_sinc_filt;
+    --variable b_taps_re : fir_taps := half_sinc_filt;
+    --variable b_taps_im : fir_taps := half_sinc_filt;
     variable sum_pipe_re : sum_pipe;
     variable sum_pipe_im : sum_pipe;    
   begin
@@ -268,22 +271,21 @@ begin
       filt(0).a_im <= x_imag;
 
       filt(0).b_re <= b_taps_re(0);
-      filt(0).b_im <= b_taps_im(0);
+      --filt(0).b_im <= b_taps_im(0);
+      filt(0).b_im <= to_sfixed(0.0, 0, -15);
 
       for ii in 1 to 32 loop
 
         -- a taps are input signal and shift
         filt(ii).a_re <= filt(ii-1).a_re;
         filt(ii).a_im <= filt(ii-1).a_im;
-        
-        -- b taps are filter and don't shift
+
+        -- b taps 
         filt(ii).b_re <= b_taps_re(ii);
-        filt(ii).b_im <= b_taps_im(ii);
+        filt(ii).b_im <= to_sfixed(0.0, 0, -15);        
+        --filt(ii).b_im <= b_taps_im(ii);
 
-        -- Single complex multiply
-        --c_mult(filt(ii));
-
-        -- Sum
+        
       end loop;
 
       c_mult(filt( 0));
