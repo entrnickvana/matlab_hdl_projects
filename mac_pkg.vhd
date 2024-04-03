@@ -35,8 +35,8 @@ Package mac_pkg is
     prod1_im : sfixed(0 downto -31);
     prod2_re : sfixed(0 downto -31);
     prod2_im : sfixed(0 downto -31);
-    prod1_ovf : std_logic;    
-    prod2_ovf : std_logic;    
+    prod_re_ovf : std_logic;    
+    prod_im_ovf : std_logic;    
     sum_re : sfixed(1 downto -15);
     sum_im : sfixed(1 downto -15);
     sum_ovf : std_logic;
@@ -44,7 +44,9 @@ Package mac_pkg is
     c_im : sfixed(0 downto -15);
   end record c_sfix;
 
-  procedure c_mult(signal c : inout c_sfix);  
+  type cnv_sfx_vct is array(natural range<>) of c_sfix;
+
+  procedure c_mult(signal c : inout c_sfix);    
   
   --type  complex_mult is record
   --  a : comp_sfix(0 downto -15);
@@ -65,19 +67,24 @@ package body mac_pkg is
     -- real products
     c.prod1_re <= c.a_re*c.b_re;
     c.prod2_re <= c.a_im*c.b_im;
+    c.prod_re_ovf <= '0';
+
 
     -- real sum
-    c.sum_re <= c.prod1_re - c.prod2_re;
+    c.sum_re <= c.prod1_re(0 downto -15) - c.prod2_re(0 downto -15);
+
+    c.sum_ovf <= '0';
 
     -- imag products  
     c.prod1_im <= c.a_re*c.b_im;
     c.prod2_im <= c.a_im*c.b_re;
-
+    c.prod_im_ovf <= '0';
+    
     -- imag sum
-    c.sum_im <= c.prod1_im + c.prod2_im;  
+    c.sum_im <= c.prod1_im(0 downto -15) + c.prod2_im(0 downto -15);  
     
   end procedure;
-  
+
   function dummy(sin_len : integer) return boolean is
     begin
     return true;

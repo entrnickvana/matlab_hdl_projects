@@ -6,7 +6,7 @@
 -- Author     :   <Nicholas@DESKTOP-L73B000>
 -- Company    : 
 -- Created    : 2024-04-01
--- Last update: 2024-04-02
+-- Last update: 2024-04-03
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ architecture tb of mac_tb is
 begin  -- architecture tb
 
   -- component instantiation
-  DUT: entity work.mac
+  DUT: entity work.mac(conv)
     port map (
       clk    => clk,
       reset  => reset,
@@ -82,13 +82,20 @@ begin  -- architecture tb
     wait for 33 ns;
     reset <= '0';
 
-    for ii in 1 to 1024 loop
-      x_real <= sig1_sfix(1, ii);
+    for ii in 1 to 4096 loop
 
-       y_real <= to_sfixed(0.0, 0, -15);    
-      if (ii mod 256) > 128 then
-        y_real <= to_sfixed(1.0, 0, -15);
-       end if;
+      -- Sin wave
+      --x_real <= sig1_sfix(1, ii);
+
+      -- Data impulses 
+      x_real <= to_sfixed(1.0, 0, -15) when (ii mod 16) = 0 else to_sfixed(0.0, 0, -15);
+      x_imag <= to_sfixed(0.0, 0, -15);
+      
+      y_real <= to_sfixed(0.0, 0, -15);
+      y_imag <= to_sfixed(0.0, 0, -15);        
+      --if (ii mod 256) > 128 then
+      --  y_real <= to_sfixed(1.0, 0, -15);
+      --end if;
        
       wait for 10 ns;
     end loop;
