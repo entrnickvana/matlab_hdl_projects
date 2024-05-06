@@ -1,0 +1,37 @@
+
+close all;
+clear all;
+%% Explore carrier recovery plls
+
+r = rng(5);
+n_syms = 64;
+data_rate = 10e6
+symbol_order = 4;
+M = log2(symbol_order); % Bits per symbol
+sym_rate = data_rate/M; %10Mbps
+
+smp_per_sym = 16;
+smp_rate = sym_rate*smp_per_sym;
+Tb = 1/sym_rate;
+Ts = 1/smp_rate;
+t_sym = [1:n_syms]*(1/Tb);
+s_n = (randi(M, 1, n_syms)-((M+1)/2)) + i*(randi(M, 1, n_syms)-((M+1)/2));
+x_n = upsample(s_n, smp_per_sym);
+filt = rcosdesign(0.25, 4, 16);
+filt = (1/max(filt))*filt;
+x_t = conv(x_n, filt);
+x_n_nan = [zeros(1, 32) x_n zeros(1, 32)];
+x_n_nan(x_n_nan == 0) = nan;
+
+
+figure; subplot(311); stem(s_n); subplot(312); stem(x_n); subplot(313); plot(real(x_t)); hold on; stem(x_n_nan); hold off;
+
+
+
+
+
+
+
+
+
+
